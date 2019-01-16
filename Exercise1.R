@@ -39,3 +39,40 @@ for(i in c(1:150)){
     print(i+0.5)
   }
 }
+#3.a
+data<-read.table("ninoSST.txt", sep="\t", header=TRUE)
+x<-data.frame(data$YEAR,data$NINO3)
+reshaped.data<-unstack(x,NINO3~YEAR)
+
+#3.b
+fourier5<-create.fourier.basis(c(1,12), 5)
+basismatrix5<-eval.basis((1:12), fourier5)
+coef.nino<-lsfit(basismatrix5,reshaped.data, intercept=FALSE)$coef
+t<-seq(1,12, 0.1)
+basismatrix51<-eval.basis(t, fourier5)
+plot(c(1,12), c(min(NINO3), max(NINO3)+1), type="n", xlab="Month", ylab="STT")
+for(i in c(1:64)){
+  smooth.nino<-basismatrix51%*%coef.nino[,i]
+  lines(t,smooth.nino)
+}
+#3.c
+mean.nino<-rowMeans(reshaped.data)
+mean.coef.nino<-lsfit(basismatrix5,mean.nino, intercept=FALSE)$coef
+smooth.nino<-basismatrix51%*%mean.coef.nino
+lines(t,smooth.nino, col="red")
+#3.d
+fourier7<-create.fourier.basis(c(1,12), 7)
+basismatrix7<-eval.basis((1:12), fourier7)
+coef.nino<-lsfit(basismatrix7,reshaped.data, intercept=FALSE)$coef
+t<-seq(1,12, 0.1)
+basismatrix71<-eval.basis(t, fourier7)
+plot(c(1,12), c(min(NINO3), max(NINO3)+1), type="n", xlab="Month", ylab="STT")
+for(i in c(1:64)){
+  smooth.nino<-basismatrix71%*%coef.nino[,i]
+  lines(t,smooth.nino)
+}
+
+mean.coef.nino<-lsfit(basismatrix7,mean.nino, intercept=FALSE)$coef
+smooth.nino<-basismatrix71%*%mean.coef.nino
+lines(t,smooth.nino, col="red")
+#fourier5 works better
